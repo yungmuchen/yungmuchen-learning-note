@@ -1,0 +1,51 @@
+
+Ubuntu version 22.04.2
+
+Q1: When PC does not connect with a monitor during the boot up, the
+remote-desktop will always be black screen.
+
+A1: 
+Solution refer to: https://github.com/twtrubiks/linux-note/tree/master/enable-ubuntu-remote-tutorial
+
+a). User already setup remote-desktop and vnc to this ubuntu is working as
+user needed. ssh accessing must be setup ready.
+
+b). Shutdown PC and remove monitor, mouse, and keyboard. Then power on this
+Linux box.
+
+c). ssh to the Linux box and setup the following xorg setting.
+
+ c.1  backup /etc/X11/xorg.conf as /etc/X11/xorg.conf.monitor-bakup
+ c.2  setup /etc/X11/xorg.conf as the follow text
+
+###################
+Section "Device"
+    Identifier  "Configured Video Device"
+    Driver      "dummy"
+EndSection
+
+Section "Monitor"
+    Identifier  "Configured Monitor"
+    HorizSync 31.5-48.5
+    VertRefresh 50-70
+EndSection
+
+Section "Screen"
+    Identifier  "Default Screen"
+    Monitor     "Configured Monitor"
+    Device      "Configured Video Device"
+    DefaultDepth 24
+    SubSection "Display"
+    Depth 24
+    Modes "1920x1080"
+    EndSubSection
+EndSection
+###################
+
+d). Reboot the Linux box. After the Linux is boot up, user can VNC to this
+Linux. Note that, by using this dummy monitor setup, real monitor is not
+working when users connect a real monitor.
+
+e). If users want to connect a monitor to this Linux box, users have to
+recover the xorg setup and reboot the system.
+

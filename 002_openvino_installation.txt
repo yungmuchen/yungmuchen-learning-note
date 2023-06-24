@@ -1,0 +1,55 @@
+
+CPU
+https://docs.openvino.ai/2023.0/openvino_docs_OV_UG_supported_plugins_Supported_Devices.html
+
+Intel CPU > 6th generation Core Processors
+Arm CPU:
+- Raspberry Pi 4 Model B
+- Apple Mac mini M1
+- NVIDIA Jetson Nano
+- Android devices
+
+Host: 
+Ubuntu 20.04.2
+python 3.8
+
+https://www.intel.com/content/www/us/en/developer/tools/openvino-toolkit/system-requirements.html
+According to the openvino docs, we can use 20.04.2.
+
+0. Install Ubuntu 20.04.2
+
+apt-get update
+apt-get -y install joe ssh ncftp curl wget net-tools
+
+1. 
+
+apt-get -y install gcc g++ autoconf automake make cmake \
+    python3-setuptools python3-venv git-all
+
+
+2. 
+cd ~/
+git clone https://github.com/openvinotoolkit/openvino.git
+git clone https://github.com/openvinotoolkit/openvino_notebooks.git
+
+
+3. 
+cd ~/openvino
+sudo ./install_build_dependencies.sh
+
+
+4.
+cd ~/
+python3 -m venv openvino_env
+source openvino_env/bin/activate
+python -m pip install --upgrade pip
+
+cd ~/openvino_notebooks
+pip install --upgrade -r requirements.txt
+pip install jupyter
+
+
+5. check
+
+mo -h
+
