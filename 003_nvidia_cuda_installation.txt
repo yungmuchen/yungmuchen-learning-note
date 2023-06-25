@@ -1,3 +1,85 @@
 
-Install cuda, cudnn
+Install 
+Nvidia driver
+CUDA Toolkit
+cudnn
 
+##########
+Host Hardware
+
+CPU: i5-12400
+GPU: NVIDIA GeForce RTX 3060
+
+To use Tensor, it good to have GPU > NVIDIA GeForce RTX 3050
+
+##########
+Host OS
+Ubuntu 20.04.2
+
+##########
+
+0. Install Ubuntu 20.04.2
+
+1. check nvidia driver 
+
+lab@ai-lab:~/pkg$ nvidia-detector
+nvidia-driver-530
+lab@ai-lab:~/pkg$ apt-get install -y nvidia-driver-530
+
+
+2. DL cuda local install file from NVIDIA
+
+  https://docs.nvidia.com/cuda/
+
+  Version CUDA_Toolkit_12.1 / Ubuntu_20.04_x86_64
+
+  cuda_12.1.1_530.30.02_linux.run
+
+  chmod +x cuda_12.1.1_530.30.02_linux.run
+  sudo sh cuda_12.1.1_530.30.02_linux.run
+
+  sudo reboot
+
+  ////
+
+  During the cuda installation, no need to install packaged nvidia driver.
+
+  https://docs.nvidia.com/networking/display/BlueFieldSWv36011699/UEFI+Secure+Boot
+  If UEFI secure boot is enabled, mok key must be enrolled.
+  For example, by using a Dell PC, during the cuda installation, a mok key
+  setup is required. And at the first reboot after cuda is installed, users
+  have to input the mok key.
+
+
+
+3. Setup cuda path in .bashrc file
+
+export PATH=$PATH:/usr/local/cuda-12.1/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-12.1/lib64
+
+  source ~/.bashrc
+
+4.
+
+git clone https://github.com/NVIDIA/cuda-samples.git
+cd ~/cuda-samples/Samples
+
+make and test any code 
+
+
+######################################
+
+Install cudnn
+
+Version: cudnn_8.9.2
+
+dpkg -i cudnn-local-repo-ubuntu2004-8.9.2.26_1.0-1_amd64.deb
+sudo cp /var/cudnn-local-repo-ubuntu2004-8.9.2.26/cudnn-local-6D0A7AE1-keyring.gpg /usr/share/keyrings/
+apt-get -y install libcudnn8=8.9.2.26-1+cuda12.1
+apt-get -y install libcudnn8-dev=8.9.2.26-1+cuda12.1
+apt-get -y install libcudnn8-samples=8.9.2.26-1+cuda12.1
+
+cd ~
+cp -r /usr/src/cudnn_samples_v8/ ./
+cd cudnn_samples_v8/
+make and test any code

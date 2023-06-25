@@ -53,3 +53,9 @@ pip install jupyter
 
 mo -h
 
+cd ~/openvino
+cd samples/python/hello_query_device/
+./hello_query_device.py
+
+Execute any sample code under ~/openvino/samples/python/
+
