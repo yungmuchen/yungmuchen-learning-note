@@ -1,0 +1,148 @@
+Does all of this:
+-- Signs and deploys user certificates (same as before)
+-- Signs and deploys host certificates
+-- (Optional) Revokes certificates via a RevokedKeys file
+-- Keeps all CA-related files organized
+
+Full Script: ssh_ca_toolkit.sh
+====
+#!/bin/bash
+
+# === CONFIGURATION ===
+
+CA_DIR="$HOME/.ssh/ca"
+CA_KEY="$CA_DIR/ssh_ca"
+CA_PUB="$CA_DIR/ssh_ca.pub"
+CERT_VALIDITY="+52w"
+
+USERS=("alice" "bob")
+HOSTS=("host1.example.com" "host2.example.com")
+
+WORKDIR="$HOME/ssh_cert_deploy"
+REVOKED_KEYS_FILE="$CA_DIR/revoked_keys"
+
+mkdir -p "$CA_DIR" "$WORKDIR"
+
+# === FUNCTIONS ===
+
+generate_ca() {
+  if [[ ! -f "$CA_KEY" ]]; then
+    echo "Generating CA key pair..."
+    ssh-keygen -f "$CA_KEY" -C "SSH CA" -N ""
+  else
+    echo "CA key already exists."
+  fi
+}
+
+sign_user_key() {
+  local user=$1
+  local keydir="$WORKDIR/$user"
+  mkdir -p "$keydir"
+
+  ssh-keygen -f "$keydir/${user}_key" -N "" -C "$user-cert"
+  # user certificate
+  ssh-keygen -s "$CA_KEY" \
+    -I "$user-cert" \
+    -n "$user" \
+    -V "$CERT_VALIDITY" \
+    "$keydir/${user}_key.pub"
+}
+
+deploy_user_cert() {
+  local user=$1
+  local host=$2
+  local keydir="$WORKDIR/$user"
+
+  echo "Deploying user cert for $user to $host..."
+  scp "$keydir/${user}_key" "$user@$host:~/.ssh/id_rsa"
+  scp "$keydir/${user}_key-cert.pub" "$user@$host:~/.ssh/id_rsa-cert.pub"
+
+  ssh "$user@$host" << EOF
+chmod 600 ~/.ssh/id_rsa
+chmod 644 ~/.ssh/id_rsa-cert.pub
+EOF
+}
+
+sign_host_key() {
+  local host=$1
+  echo "Signing host key for $host..."
+
+  # Copy host key locally
+  scp root@$host:/etc/ssh/ssh_host_rsa_key.pub "$WORKDIR/${host}_host_key.pub"
+
+  # Sign the host key
+  ssh-keygen -s "$CA_KEY" \
+    -I "$host-host-cert" \
+    -h \
+    -n "$host" \
+    -V "$CERT_VALIDITY" \
+    "$WORKDIR/${host}_host_key.pub"
+
+  # Upload the signed host certificate
+  scp "$WORKDIR/${host}_host_key-cert.pub" root@$host:/etc/ssh/ssh_host_rsa_key-cert.pub
+
+  # Configure sshd to use it
+  ssh root@$host << EOF
+echo "HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub" >> /etc/ssh/sshd_config
+echo "TrustedUserCAKeys /etc/ssh/ca.pub" >> /etc/ssh/sshd_config
+echo "RevokedKeys $REVOKED_KEYS_FILE" >> /etc/ssh/sshd_config
+cp "$CA_PUB" /etc/ssh/ca.pub
+systemctl restart sshd
+EOF
+}
+
+revoke_user_cert() {
+  local user=$1
+  local keydir="$WORKDIR/$user"
+  echo "Revoking cert for $user..."
+  cat "$keydir/${user}_key.pub" >> "$REVOKED_KEYS_FILE"
+}
+
+# === MAIN LOGIC ===
+
+echo "SSH CA Toolkit Starting..."
+
+generate_ca
+
+# USER CERTIFICATE DEPLOYMENT
+for user in "${USERS[@]}"; do
+  sign_user_key "$user"
+  for host in "${HOSTS[@]}"; do
+    deploy_user_cert "$user" "$host"
+  done
+done
+
+# HOST CERTIFICATE SIGNING
+for host in "${HOSTS[@]}"; do
+  sign_host_key "$host"
+done
+
+echo "All user and host certificates deployed and configured."
+
+====
+
+
+🧪 Usage
+Requires root SSH access to the servers for host cert config (root@$host) and user accounts already created.
+
+--------------------------------------
+✅ Optional Revocation
+
+To revoke a user's certificate, adjust the above bash to call:
+
+revoke_user_cert "alice"
+
+The public key gets added to /etc/ssh/revoked_keys, and servers using:
+
+/etc/sshd/sshd_config
+
+RevokedKeys /etc/ssh/revoked_keys
+
+will block logins from that cert.
+
+--------------------------------------------------------------
+🧠 Best Practice
+-- Keep ssh_ca private key safe and offline when not in use
+-- Use short validity windows (-V +7d) for ephemeral access
+-- Combine with Principals and CriticalOptions for role-based access
+
