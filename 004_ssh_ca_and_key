@@ -335,7 +335,7 @@ ssh_ca.pub = CA public key (to be distributed to all servers)
 On each server, add the CA public key to /etc/ssh/sshd_config:
 
   echo "TrustedUserCAKeys /etc/ssh/ca.pub" | sudo tee -a /etc/ssh/sshd_config
-  sudo cp ~/ssh_ca.pub /etc/ssh/ca.pub
+  sudo cp ssh_ca.pub /etc/ssh/ca.pub
   sudo systemctl restart sshd
 
 
