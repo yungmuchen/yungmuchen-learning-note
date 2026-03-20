@@ -1,4 +1,6 @@
 
+安裝 WSL2 必須使用具有**管理員權限（Run as Administrator）**的 PowerShell 視窗
+
 # list all support OS version
 wsl --list --online
 
@@ -30,4 +32,15 @@ SUSE-Linux-Enterprise-15-SP6    SUSE Linux Enterprise 15 SP6
 # install a ubuntu linux to path
 
 wsl --install -d Ubuntu-24.04 --location D:\WSL\Ubuntu
+
+# shutdown wsl
+wsl --shutdown
+
+# check status
+wsl --list --verbose 
+wsl -l -v
+
+# resource constraints
+在 Windows 的使用者資料夾下建立一個 .wslconfig 檔案來手動限制它的 CPU 和記憶體使用量
+
 
