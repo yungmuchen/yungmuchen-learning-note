@@ -41,12 +41,17 @@ wsl -l -v
 
 # shutdown all wsl
 wsl --shutdown
+wsl --shutdown --force
 
 # terminate wsl
 wsl --terminate Ubuntu-WorkA
+wsl -t Ubuntu-WorkA
+
 
 # start wsl
 wsl -d Ubuntu-WorkA
+
+# un-register wsl
 
 # uninstall a distribution
 wsl --uninstall Ubuntu-24.04
