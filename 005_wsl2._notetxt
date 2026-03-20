@@ -33,14 +33,37 @@ SUSE-Linux-Enterprise-15-SP6    SUSE Linux Enterprise 15 SP6
 
 wsl --install -d Ubuntu-24.04 --location D:\WSL\Ubuntu
 
-# shutdown wsl
-wsl --shutdown
+####################################
 
-# check status
+# check all status
 wsl --list --verbose 
 wsl -l -v
 
+# shutdown all wsl
+wsl --shutdown
+
+# terminate wsl
+wsl --terminate Ubuntu-WorkA
+
+# start wsl
+wsl -d Ubuntu-WorkA
+
+####################################
+
 # resource constraints
 在 Windows 的使用者資料夾下建立一個 .wslconfig 檔案來手動限制它的 CPU 和記憶體使用量
+
+####################################
+
+# move a ubuntu virtual disk (.vhdx) to a target dest
+
+wsl --manage Ubuntu --move D:\WSL\Ubuntu
+
+
+# import / export system
+
+wsl --export Ubuntu D:\backup.tar
+
+wsl --import Work-Instance D:\WSL\WorkFolder D:\backup.tar
 
 
