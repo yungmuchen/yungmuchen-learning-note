@@ -48,6 +48,9 @@ wsl --terminate Ubuntu-WorkA
 # start wsl
 wsl -d Ubuntu-WorkA
 
+# uninstall a distribution
+wsl --uninstall Ubuntu-24.04
+
 ####################################
 
 # resource constraints
