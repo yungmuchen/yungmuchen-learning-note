@@ -75,3 +75,7 @@ wsl --export Ubuntu D:\backup.tar
 wsl --import Work-Instance D:\WSL\WorkFolder D:\backup.tar
 
 
+# install x11
+
+sudo apt install x11-apps -y
+
